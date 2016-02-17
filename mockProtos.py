@@ -1,4 +1,4 @@
-
+from elftools.dwarf.die import DIE
 
 class MockProto(object):
 	def __init__(self,die):

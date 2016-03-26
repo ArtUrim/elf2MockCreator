@@ -19,7 +19,7 @@ class DieByOffset(object):
         return cuByOffset
 
     def getDie(self,offset):
-        DieByOffset.getDieInCu(offset,self.cu)
+        return DieByOffset.getDieInCu(offset,self.cu)
 
     def __getitem__(self,offset):
         self.getDie(offset)

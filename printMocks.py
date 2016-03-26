@@ -28,6 +28,12 @@ class PrintMocks(object):
 
         return strPrintMocks + '\n'
 
+    def createProtos(self):
+        self.mocksProto = []
+        for und in self.undefDies:
+            self.mocksProto.append( MockProto.findMockType( self.undefDies[und][1] ) )
+        return self.mocksProto
+
     @staticmethod
     def printHelp():
         print( """printMocks  --  tools for creation mocks from source code
@@ -42,4 +48,7 @@ if __name__ == '__main__':
     else:
         printMocks = PrintMocks(sys.argv[1], sys.argv[2] )
         print( str(printMocks) )
+        print( '\n' )
+        for mp in printMocks.createProtos():
+            print( str(mp) )
 

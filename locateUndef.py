@@ -1,10 +1,33 @@
+##################################
+# elf2MockCreator/locateUndef
+#
+# Locate symbol in the compilation unit
+#
+# Artur Lozinski (lozinski dot artur at gmail dor com)
+# This code is the public domain
+# #######################################
 import sys
+
 from elftools.elf.elffile import ELFFile
 from elftools.common.py3compat import itervalues
 
 class LocateUndef(object):
+    """ Locate symbol in the compilation unit. For each symbol (by a name string) returns an
+        object of the pyelftools/dwarf/die type (with includes reference to the compilation
+        unit as an attribute.
+
+        Public methods:
+
+            findDies -- for the list of names (of the symbols) prepares the list of
+                references to DIE
+                
+            getDies -- return the list of found DIEs
+    """
 
     def __init__(self,fname):
+        """ fname:
+                file name of object file 
+        """
         self.dies = {}
         self.fh = open( fname, 'rb' )
         if self.fh:
@@ -23,6 +46,8 @@ class LocateUndef(object):
             self.fh.close()
 
     def findDies( self, namesList ):
+        """ namesList -- list of symbol names (strings). Each symbols is expected to be once
+            in the nameList"""
         for cu in self.dwarfinfo.iter_CUs():
             for die in cu.iter_DIEs():
                 if die.is_null():
@@ -38,6 +63,7 @@ class LocateUndef(object):
                             return
 
     def getDies(self):
+        """ returns list of DIEs object (its name is DIE.attributes['DW_AT_name'] """
         return self.dies
 
 if __name__ == '__main__':

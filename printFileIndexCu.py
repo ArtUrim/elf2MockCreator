@@ -1,4 +1,13 @@
+##################################
+# elf2MockCreator/printFileIndexCu
+#
+# Find undefined symbols reffered in the elf object
+#
+# Artur Lozinski (lozinski dot artur at gmail dor com)
+# This code is the public domain
+# #######################################
 import sys
+
 from elftools.elf.elffile import ELFFile
 
 class FileIndexCu(object):

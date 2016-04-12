@@ -1,3 +1,11 @@
+##################################
+# elf2MockCreator/mockProtos
+#
+# String destription of TAGs types
+#
+# Artur Lozinski (lozinski dot artur at gmail dor com)
+# This code is the public domain
+# #######################################
 from elftools.dwarf.die import DIE
 from dieByOffset import DieByOffset
 

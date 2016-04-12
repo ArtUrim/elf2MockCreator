@@ -1,3 +1,11 @@
+##################################
+# elf2MockCreator/printMocks
+#
+# An example of tool to create mocks. Print defs all undefined symbols.
+#
+# Artur Lozinski (lozinski dot artur at gmail dor com)
+# This code is the public domain
+# #######################################
 import sys
 
 from findUndefs import FindUndefs

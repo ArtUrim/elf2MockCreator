@@ -11,6 +11,16 @@ import sys
 from elftools.elf.elffile import ELFFile
 
 class FileIndexCu(object):
+    """ To easy represent files names (with dirs) from dwarf information subsection(s).
+
+        Public methods:
+
+        filesIn -- return a list (in the same order as in the info section) of file names
+            defined for whole elf
+
+        filesInCu -- return a list (in the same order as in the info section) of file names
+            defined for compilation unit
+    """
 
     def __init__(self,fname):
         self.dies = {}
@@ -30,6 +40,9 @@ class FileIndexCu(object):
             self.fh.close()
 
     def filesIn( self ):
+        """ return a list (in the same order as in the info section) of file names
+            defined for whole elf
+        """
         self.files = {}
         for cu in self.dwarfinfo.iter_CUs():
             (compFile, allFiles) = self.filesInCu(cu)
@@ -37,6 +50,9 @@ class FileIndexCu(object):
         return self.files
 
     def filesInCu(self,cu):
+        """ return a list (in the same order as in the info section) of file names
+            defined for compilation unit
+        """
         lineprog = self.dwarfinfo.line_program_for_CU(cu)
         compFile = None
         files = []

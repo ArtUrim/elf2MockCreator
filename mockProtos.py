@@ -10,8 +10,29 @@ from elftools.dwarf.die import DIE
 from dieByOffset import DieByOffset
 
 class MockProto(object):
+    """ String destription of TAGs types. This is an abstract class, not for use in ANY
+        instance. Includes two method (one of them static) to define what type is a DIE, and
+        similarly what's kind of the type of the DIE (if exists).
+
+        The main idea is that any usable DIE type has its own inherited class, which
+        defined __str__ method to print necessary string.
+
+        For more complited cases (like pointer type) the mechanism of the str.format() is
+        used, while the more specific type information is put into the basic specification
+        as a formattting (compare FunctionProto.__str__ for reference).
+
+        Public methods:
+            findMockType -- static method to define DIE type (mostly by the DIE TAG info).
+
+            getType -- returns a tuple (derived from the object itself):
+                * reference to DIE
+                * reference to objected of inherited class from MockProto
+    """
 
     def __init__(self,die):
+        """ die:
+                reference to pyelftool/dwarf/die
+        """
         self.die = die
         if isinstance(die,DIE):
             self.kind = die.tag
@@ -24,6 +45,11 @@ class MockProto(object):
 
     @staticmethod
     def findMockType(die):
+        """ die:
+                reference to pyelftool/dwarf/die
+
+            return reference to newly created object inherited from MockProto
+        """
         if not isinstance(die,DIE):
             return None
         if ( die.tag == 'DW_TAG_variable' and
@@ -58,6 +84,12 @@ class MockProto(object):
             return None
 
     def getType(self):
+        """ Return a pair (tuple):
+                * reference to DIE
+                * reference to objected of inherited class from MockProto
+
+            Both are None if type is not found in the attributes
+        """
         typeDie = None
         mockDie = None
         if 'DW_AT_type' in self.die.attributes:
@@ -68,18 +100,30 @@ class MockProto(object):
 
 
 class FinalProto(MockProto):
+    """ Abstract class only for logical distinguish of the final DIE (which is not type of
+        other DIE).
+
+        Attributes:
+            is_external -- set to nonzero if DIE has an attribute external, and it is
+                nonzero
+    """
+
     def __init__(self,die):
         super().__init__(die)
-        self.is_external = 0
-        self.typeP = None
+        self.is_external = None
+        self.isExternal()
 
-        #if die.attributes['external']:
-        #    self.is_external = die.attributes['external']
-        #if die.attributes['type']:
-        #    self.type = die.attributes['type']
+    def isExternal(self):
+        if 'DW_AT_external' in self.die.attributes:
+            self.is_external = self.attributes['DW_AT_external']
 
 class GlobalProto(FinalProto):
+    """ Used for global variables. 
+    """
     def __init__(self,die,is_param=0):
+        """ is_param:
+                nonzero if the str representation has ';' at its end. 0 by default.
+        """
         super().__init__(die)
         self.is_param = is_param
 
@@ -94,6 +138,8 @@ class GlobalProto(FinalProto):
             return ""
 
 class FunctionProto(FinalProto):
+    """ Used for standalone function
+    """
     def __init__(self,die):
         super().__init__(die)
 
@@ -116,6 +162,8 @@ class FunctionProto(FinalProto):
         return retStr + ");"
 
 class ModifierType(MockProto):
+    """ Any kind of modification type (pointer, array, and so on)
+    """
     def __init__(self,die):
         super().__init__(die)
 
@@ -143,6 +191,10 @@ class ModifierType(MockProto):
         return ttname
 
 class BasicType(MockProto):
+    """ Basic means the last in the type chain. So, this is not only types like 'int' but
+        also enum, struct, or typedef, when no more modification of the type is required.
+    """
+    
     def __init__(self,die):
         super().__init__(die)
 

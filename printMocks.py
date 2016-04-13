@@ -42,6 +42,13 @@ class PrintMocks(object):
             self.mocksProto.append( MockProto.findMockType( self.undefDies[und][1] ) )
         return self.mocksProto
 
+    def getFileIndex(self):
+        self.fileIndex = FileIndexCu( self.objFileName )
+        self.filesInCu = self.fileIndex.filesIn()
+        if len(self.filesInCu) != 1:
+            print( "Unexpected number of CU: {}".format( len(self.filesInCu) ) )
+        return self.filesInCu.popitem()[1]
+
     @staticmethod
     def printHelp():
         print( """printMocks  --  tools for creation mocks from source code
@@ -55,6 +62,13 @@ if __name__ == '__main__':
         PrintMocks.printHelp()
     else:
         printMocks = PrintMocks(sys.argv[1], sys.argv[2] )
+        fic = printMocks.getFileIndex()
+        print( "Files:" )
+        co = 1
+        for ff in fic:
+            print( "{}:{}".format(co,ff) )
+            co += 1
+        print( "" )
         print( str(printMocks) )
         print( '\n' )
         for mp in printMocks.createProtos():

@@ -115,7 +115,7 @@ class FinalProto(MockProto):
 
     def isExternal(self):
         if 'DW_AT_external' in self.die.attributes:
-            self.is_external = self.attributes['DW_AT_external']
+            self.is_external = self.die.attributes['DW_AT_external']
 
 class GlobalProto(FinalProto):
     """ Used for global variables. 

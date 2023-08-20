@@ -29,6 +29,8 @@ class MockProto(object):
                 * reference to objected of inherited class from MockProto
     """
 
+    unknownObjectNum = 1
+
     def __init__(self,die):
         """ die:
                 reference to pyelftool/dwarf/die
@@ -126,6 +128,9 @@ class GlobalProto(FinalProto):
         """
         super().__init__(die)
         self.is_param = is_param
+        if self.name is None:
+            self.name = 'var' + str(MockProto.unknownObjectNum)
+            MockProto.unknownObjectNum += 1
 
     def __str__(self):
         typeDieInfo = self.getType()
@@ -153,11 +158,11 @@ class FunctionProto(FinalProto):
         comma = None
         for childTag in self.die.iter_children():
             if isinstance(childTag,DIE) and 'DW_TAG_formal_parameter' == childTag.tag:
-                retStr = retStr + ' ' + str(MockProto.findMockType(childTag)) + ' '
                 if comma:
                     retStr = retStr + ','
                 else:
                     comma = 1
+                retStr = retStr + ' ' + str(MockProto.findMockType(childTag)) + ' '
 
         return retStr + ");"
 

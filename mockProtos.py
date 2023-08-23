@@ -142,11 +142,38 @@ class GlobalProto(FinalProto):
         else:
             return ""
 
+class MockData:
+
+    def __init__(self,name,retval):
+        self.name = name
+        self.retv = retval
+        self.args = []
+
+    def add_arg( self, typ, name ):
+        self.args.append( [typ,name])
+
 class FunctionProto(FinalProto):
     """ Used for standalone function
     """
     def __init__(self,die):
         super().__init__(die)
+
+    def mockData(self):
+        retv = 'void'
+        typeDieInfo = self.getType()
+        if typeDieInfo[1]:
+            retv = typeDieInfo[1].getTypeName()
+        retVal = MockData( self.name, retv )
+
+        for childTag in self.die.iter_children():
+            if isinstance(childTag,DIE) and 'DW_TAG_formal_parameter' == childTag.tag:
+                mp = MockProto.findMockType(childTag)
+                if mp:
+                    vmp = mp.getType()[1]
+                retVal.add_arg( mp.name, vmp.getTypeName() )
+
+        return retVal
+
 
     def __str__(self):
         typeDieInfo = self.getType()
@@ -172,28 +199,41 @@ class ModifierType(MockProto):
     def __init__(self,die):
         super().__init__(die)
 
-    def __str__(self):
+    def getTypeName(self):
         ttname = None
         if self.die.tag == 'DW_TAG_pointer_type':
-            ttname = "* {}"
+            ttname = "*"
         elif self.die.tag == 'DW_TAG_ptr_to_member_type':
-            ttname = "* {}" # TODO: be more specific for this special case
+            ttname = "*" # TODO: be more specific for this special case
         elif self.die.tag == 'DW_TAG_reference_type':
-            ttname = "& {}"
+            ttname = "&"
         elif self.die.tag == 'DW_TAG_array_type':
-            ttname = "{}"
+            ttname = ""
             for childTag in self.die.iter_children():
                 if isinstance(childTag,DIE) and 'DW_TAG_subrange_type' == childTag.tag:
                     if 'DW_AT_upper_bound' in childTag.attributes:
                         uppBound = childTag.attributes['DW_AT_upper_bound'].value + 1
                         ttname = ttname + "[{}]".format(uppBound)
         elif 'DW_AT_name' in self.die.attributes:
-            ttname = self.die.attributes['DW_AT_name'].value.decode('ascii') + " {}"
+            ttname = self.die.attributes['DW_AT_name'].value.decode('ascii')
 
         if ttname:
             ttname = str(self.getType()[1]).format(ttname)
 
         return ttname
+
+
+    def __str__(self):
+        if self.die.tag == 'DW_TAG_array_type':
+            ttname = "{}"
+            for childTag in self.die.iter_children():
+                if isinstance(childTag,DIE) and 'DW_TAG_subrange_type' == childTag.tag:
+                    if 'DW_AT_upper_bound' in childTag.attributes:
+                        uppBound = childTag.attributes['DW_AT_upper_bound'].value + 1
+                        ttname = ttname + "[{}]".format(uppBound)
+            return str(self.getType()[1]).format(ttname)
+
+        return self.getTypeName() + " {}"
 
 class BasicType(MockProto):
     """ Basic means the last in the type chain. So, this is not only types like 'int' but
@@ -203,7 +243,7 @@ class BasicType(MockProto):
     def __init__(self,die):
         super().__init__(die)
 
-    def __str__(self):
+    def getTypeName(self):
         ttname = self.die.attributes['DW_AT_name'].value.decode('ascii')
         if self.die.tag == 'DW_TAG_enumeration_type':
             ttname = 'enum ' + ttname
@@ -211,4 +251,7 @@ class BasicType(MockProto):
             ttname = 'union ' + ttname
         elif self.die.tag == 'DW_TAG_structure_type':
             ttname = 'struct ' + ttname
-        return ttname + " {}"
+        return ttname
+
+    def __str__(self):
+        return self.getTypeName() + " {}"

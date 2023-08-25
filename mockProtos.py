@@ -58,7 +58,12 @@ class MockProto(object):
                 die.attributes['DW_AT_external'] ):
             return GlobalProto(die)
         if ( die.tag == 'DW_TAG_formal_parameter' ):
-            return GlobalProto(die,1)
+            retval = GlobalProto(die,1)
+            (typeD,mockD) = retval.getType()
+            if typeD.tag == 'DW_TAG_pointer_type':
+                if mockD.getType()[0].tag == 'DW_TAG_subroutine_type':
+                    pass # TODO: pointer to function
+            return retval
         elif ( die.tag == 'DW_TAG_subprogram' and
                 die.attributes['DW_AT_external'] ):
             return FunctionProto(die)

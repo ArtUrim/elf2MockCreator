@@ -1,4 +1,4 @@
-OBJECTS = testdata.o main.o
+OBJECTS = testdata.o main.o test.Pointer.o
 EXEC = test
 
 %.o:%.c

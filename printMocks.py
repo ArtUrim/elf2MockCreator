@@ -100,7 +100,7 @@ def writeMockCpp( fname, printMocks ):
     fname += 'Mock.'
 
     with open( fname + 'cpp', 'wt' ) as fh:
-        fh.write( "#include \"" + fname + '.h"\n\n' )
+        fh.write( "#include \"" + fname + 'h"\n\n' )
         fh.write( className + " * " + pointerName + ';\n\n' )
         fh.write( 'extern "C" {\n\n' ) 
         for mp in printMocks.createProtos():

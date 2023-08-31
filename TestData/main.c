@@ -9,6 +9,19 @@ void ala()
 		a++;
 }
 
+void bla( int b )
+{
+	if( b )
+		a += b;
+}
+
+int cla( int c )
+{
+	if( c )
+		a -= c;
+	return a;
+}
+
 int main() 
 {
 	if( testVoidInt(7) > 2 ) {
@@ -19,8 +32,16 @@ int main()
 		if( 4 > testStruct( *pStr ) )
 			return -2;
 	} else {
-		init_by_pFunc( ala );
-		return -1;
+		if( init_by_pFunc1( ala ) )
+			return -1;
+		if( init_by_pFunc2( ala ) )
+			return -3;
+		if( init_by_pFunc3( bla ) )
+			return -5;
+		if( init_by_pFunc4( cla ) )
+			return -4;
+		if( init_by_tydefFunc( cla ) )
+			return -7;
 	}
 
 	return 0;

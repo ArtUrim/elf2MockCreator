@@ -16,6 +16,6 @@ TEST(abc, xyz ) {
 	EXPECT_CALL( *p_mainMock, init_by_pFunc1 (foo) )
 		.WillOnce( ::testing::Return(1) );
 
-	EXPECT_EQ(init_by_pFunc1(foo), 2 );
+	EXPECT_EQ(init_by_pFunc1(foo), 1 );
 	delete p_mainMock;
 }

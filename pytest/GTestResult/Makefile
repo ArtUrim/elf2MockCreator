@@ -1,16 +1,19 @@
 exe: gt
 	./gt
 
+CXX = /usr/bin/g++
+RM = /usr/bin/rm
+
 VPATH = .:../..
 
 gt: $(GTEST_FILE) mainMockMock.o
-	g++ -o $@ $? -lgtest_main -lgtest -lgmock
+	$(CXX) -o $@ $? -lgtest_main -lgtest -lgmock
 
 %.o:%.cpp
-	g++ -Wall -pedantic -I../.. -I../../TestData -c $<
+	$(CXX) -Wall -pedantic -I../.. -I../../TestData -c $<
 
 clean:
-	rm -f gt *.o
+	$(RM) -f gt *.o
 
 purge: clean
-	rm -f *~
+	$(RM) -f *~

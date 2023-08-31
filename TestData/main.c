@@ -1,5 +1,4 @@
 #include "testdata.h"
-#include "test.Pointer.h"
 
 static unsigned a = 4;
 

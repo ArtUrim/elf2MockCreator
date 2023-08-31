@@ -1,4 +1,4 @@
-#include "test.Pointer.h"
+#include "testdata.h"
 
 int init_by_tydefFunc( f_pointer_type p_func )
 {

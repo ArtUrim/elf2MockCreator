@@ -1,4 +1,4 @@
-#include "test.Pointer.h"
+#include "testdata.h"
 
 int init_by_pFunc1( void (*p_func)() )
 {

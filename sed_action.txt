@@ -1,0 +1,1 @@
+sed -i 's/^.*PLACE FOR YOUR HEADER.*$/#include \"TestData\/testdata.h\"/' mainMockMock.h

@@ -63,7 +63,9 @@ class PrintMocks(object):
 
 def writeMockHeader( fname, printMocks ):
     className = fname.capitalize() + 'Mock'
+    className = className.replace('.','_')
     pointerName = 'p_' + fname
+    pointerName = pointerName.replace('.','_')
     fname += 'Mock.h'
 
     wrtStr = """#pragma once
@@ -96,11 +98,13 @@ class """
 
 def writeMockCpp( fname, printMocks ):
     className = fname.capitalize() + 'Mock'
+    className = className.replace('.','_')
     pointerName = 'p_' + fname
+    pointerName = pointerName.replace('.','_')
     fname += 'Mock.'
 
     with open( fname + 'cpp', 'wt' ) as fh:
-        fh.write( "#include \"" + fname + '.h"\n\n' )
+        fh.write( "#include \"" + fname + 'h"\n\n' )
         fh.write( className + " * " + pointerName + ';\n\n' )
         fh.write( 'extern "C" {\n\n' ) 
         for mp in printMocks.createProtos():

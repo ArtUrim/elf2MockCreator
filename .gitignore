@@ -1,5 +1,7 @@
 __pycache__
 TestData/test
 TestData/*.o
-*Mock.cpp
-*Mock.h
+/*Mock.cpp
+/*Mock.h
+.*.swp
+*~

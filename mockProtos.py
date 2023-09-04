@@ -59,6 +59,7 @@ class MockProto(object):
             return GlobalProto(die)
         if ( die.tag == 'DW_TAG_formal_parameter' ):
             retval = GlobalProto(die,1)
+            # import pdb; pdb.set_trace()
             (typeD,mockD) = retval.getType()
             if typeD.tag == 'DW_TAG_pointer_type':
                 if mockD.getType()[0].tag == 'DW_TAG_subroutine_type':

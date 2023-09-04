@@ -12,6 +12,7 @@ from findUndefs import FindUndefs
 from locateUndef import LocateUndef
 from mockProtos import *
 from printFileIndexCu import FileIndexCu
+from dieByOffset import DieByOffset
 
 import argparse
 import os
@@ -41,6 +42,7 @@ class PrintMocks(object):
 
     def createProtos(self):
         self.mocksProto = []
+        DieByOffset.CUs = {}
         for und in self.undefDies:
             self.mocksProto.append( MockProto.findMockType( self.undefDies[und][1] ) )
         return self.mocksProto
@@ -134,7 +136,6 @@ if __name__ == '__main__':
         args.print_help()
     else:
         printMocks = PrintMocks(args.input[0], args.input[1] )
-        fic = printMocks.getFileIndex()
         if args.o:
 
             mockFileBaseName  = os.path.splitext(os.path.basename(args.input[1]))[0]
@@ -145,6 +146,7 @@ if __name__ == '__main__':
         else:
             print( "Files:" )
             co = 1
+            fic = printMocks.getFileIndex()
             for ff in fic:
                 print( "{}:{}".format(co,ff) )
                 co += 1

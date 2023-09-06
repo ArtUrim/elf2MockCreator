@@ -14,9 +14,9 @@ extern "C" {
 
 TEST(abc, xyz ) {
 	p_mainMock = new MainmockMock;
-	EXPECT_CALL( *p_mainMock, init_by_typedFunc (foo) )
+	EXPECT_CALL( *p_mainMock, init_by_tydefFunc (foo) )
 		.WillOnce( ::testing::Return(1) );
 
-	EXPECT_EQ(init_by_typedFunc(foo), 1 );
+	EXPECT_EQ(init_by_tydefFunc(foo), 1 );
 	delete p_mainMock;
 }

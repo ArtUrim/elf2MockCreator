@@ -115,7 +115,12 @@ def writeMockCpp( fname, printMocks ):
             for i,vv in enumerate(vmp.args):
                 if i > 0:
                     fh.write( ', ' )
-                fh.write( vv[1] + ' ' + vv[0] )
+                (newStr,nocc) = re.subn( '\(\*\)', '(*' + vv[0] + ')',
+                                        vv[1] )
+                if nocc:
+                    fh.write(newStr)
+                else:
+                    fh.write( vv[1] + ' ' + vv[0] )
             fh.write( ' )\n{\n   ' )
             if 'void' != vmp.retv:
                 fh.write( 'return ' )

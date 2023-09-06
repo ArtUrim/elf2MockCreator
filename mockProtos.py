@@ -8,6 +8,7 @@
 # #######################################
 from elftools.dwarf.die import DIE
 from dieByOffset import DieByOffset
+import re
 
 class MockProto(object):
     """ String destription of TAGs types. This is an abstract class, not for use in ANY
@@ -59,11 +60,11 @@ class MockProto(object):
             return GlobalProto(die)
         if ( die.tag == 'DW_TAG_formal_parameter' ):
             retval = GlobalProto(die,1)
-            # import pdb; pdb.set_trace()
             (typeD,mockD) = retval.getType()
             if typeD.tag == 'DW_TAG_pointer_type':
                 if mockD.getType()[0].tag == 'DW_TAG_subroutine_type':
-                    pass # TODO: pointer to function
+                    retval = PFuncProto(mockD.getType()[0],
+                                  die.attributes['DW_AT_name'].value )
             return retval
         elif ( die.tag == 'DW_TAG_subprogram' and
                 die.attributes['DW_AT_external'] ):
@@ -148,6 +149,14 @@ class GlobalProto(FinalProto):
         else:
             return ""
 
+    def getTypeName(self):
+        typeDieInfo = self.getType()
+        if typeDieInfo[1]:
+            retStr = typeDieInfo[1].getTypeName()
+            return retStr
+        else:
+            return ""
+
 class MockData:
 
     def __init__(self,name,retval):
@@ -176,10 +185,12 @@ class FunctionProto(FinalProto):
                 mp = MockProto.findMockType(childTag)
                 if mp:
                     vmp = mp.getType()[1]
-                retVal.add_arg( mp.name, vmp.getTypeName() )
+                if isinstance( mp, PFuncProto ):
+                    retVal.add_arg( mp.name, mp.getTypeName() )
+                else:
+                    retVal.add_arg( mp.name, vmp.getTypeName() )
 
         return retVal
-
 
     def __str__(self):
         typeDieInfo = self.getType()
@@ -198,6 +209,43 @@ class FunctionProto(FinalProto):
                 retStr = retStr + ' ' + str(MockProto.findMockType(childTag)) + ' '
 
         return retStr + ");"
+
+class PFuncProto(FunctionProto):
+    """ Used for pointer to function
+    """
+    def __init__(self,die,name=None):
+        super().__init__(die)
+        if isinstance(name,bytes):
+            self.name = name.decode("utf-8")
+        else:
+            self.name = name
+
+    def getTypeName(self):
+        typeDieInfo = self.getType()
+        retStr = ""
+        if typeDieInfo[1]:
+            retStr = str(typeDieInfo[1]).format('(*)') + '('
+        else:
+            retStr = "void (*)("
+        comma = None
+        for childTag in self.die.iter_children():
+            if isinstance(childTag,DIE) and 'DW_TAG_formal_parameter' == childTag.tag:
+                if comma:
+                    retStr = retStr + ','
+                else:
+                    comma = 1
+                retStr = (retStr + ' ' +
+                    MockProto.findMockType(childTag).getTypeName() + ' ')
+    
+        return retStr + ")"
+
+    def __str__(self):
+        if self.name:
+            return re.sub( '\(\*\)', '(*' + self.name + ')',
+                          self.getTypeName() )
+        else:
+            return self.getTypeName()
+
 
 class ModifierType(MockProto):
     """ Any kind of modification type (pointer, array, and so on)

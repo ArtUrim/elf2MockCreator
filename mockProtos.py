@@ -63,8 +63,10 @@ class MockProto(object):
             (typeD,mockD) = retval.getType()
             if typeD.tag == 'DW_TAG_pointer_type':
                 if mockD.getType()[0].tag == 'DW_TAG_subroutine_type':
-                    retval = PFuncProto(mockD.getType()[0],
-                                  die.attributes['DW_AT_name'].value )
+                    objName = None
+                    if 'DW_AT_name' in die.attributes:
+                        objName = die.attributes['DW_AT_name'].value
+                    retval = PFuncProto(mockD.getType()[0], objName )
             return retval
         elif ( die.tag == 'DW_TAG_subprogram' and
                 die.attributes['DW_AT_external'] ):
@@ -215,7 +217,10 @@ class PFuncProto(FunctionProto):
     """
     def __init__(self,die,name=None):
         super().__init__(die)
-        if isinstance(name,bytes):
+        if name is None:
+            self.name = 'pFunc' + str(MockProto.unknownObjectNum)
+            MockProto.unknownObjectNum += 1
+        elif isinstance(name,bytes):
             self.name = name.decode("utf-8")
         else:
             self.name = name

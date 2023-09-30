@@ -16,6 +16,7 @@ from dieByOffset import DieByOffset
 
 import argparse
 import os
+import logging
 
 class PrintMocks(object):
 
@@ -136,10 +137,21 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument( 'input', nargs='+', help=" 2 inputs are: 1) elf file for whole app 2) obj for the source to mock" )
     parser.add_argument( '-o', action='store_true', help="store to h and cpp mock files" )
+    parser.add_argument( '--log',action='store',help='logging level')
+    parser.add_argument( '--logfile',action='store',help='logging to file')
     args = parser.parse_args()
     if len(args.input) < 2:
         args.print_help()
     else:
+        logLevel = logging.WARNING
+        if args.log:
+            logLevel = getattr(logging,args.log.upper(), logging.WARNING )
+        if args.logfile:
+            logging.basicConfig(level=logLevel,filename=args.logfile)
+        else:
+            logging.basicConfig(level=logLevel)
+
+
         printMocks = PrintMocks(args.input[0], args.input[1] )
         if args.o:
 

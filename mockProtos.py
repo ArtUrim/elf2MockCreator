@@ -8,7 +8,9 @@
 # #######################################
 from elftools.dwarf.die import DIE
 from dieByOffset import DieByOffset
+
 import re
+import logging
 
 class MockProto(object):
     """ String destription of TAGs types. This is an abstract class, not for use in ANY
@@ -321,9 +323,10 @@ class VarArgsProto(GlobalProto):
 
     def __init__(self,die):
         super().__init__(die)
+        logging.debug( "VarArgsProto::constructor" )
 
     def getTypeName(self):
-        pass
+        logging.debug( "VarArgsProto::getTypeName" )
 
     def __str__(self):
         return '...'

@@ -68,6 +68,8 @@ class MockProto(object):
                         objName = die.attributes['DW_AT_name'].value
                     retval = PFuncProto(mockD.getType()[0], objName )
             return retval
+        elif ( die.tag == 'DW_TAG_unspecified_parameters' ):
+            return VarArgsProto(die)
         elif ( die.tag == 'DW_TAG_subprogram' and
                 die.attributes['DW_AT_external'] ):
             return FunctionProto(die)
@@ -314,3 +316,14 @@ class BasicType(MockProto):
 
     def __str__(self):
         return self.getTypeName() + " {}"
+
+class VarArgsProto(GlobalProto):
+
+    def __init__(self,die):
+        super().__init__(die)
+
+    def getTypeName(self):
+        pass
+
+    def __str__(self):
+        return '...'

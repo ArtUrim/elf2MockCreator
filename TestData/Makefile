@@ -1,7 +1,8 @@
 OBJECTS = main.o \
 			 testIP.o testPS.o testRP.o testS.o testVI.o \
 			 test.PointerII.o test.PointerTypedef.o \
-			 test.PointerV.o test.PointerVI.o test.PointerVV.o
+			 test.PointerV.o test.PointerVI.o test.PointerVV.o \
+			 testVarArgs.o
 
 OBJ_ELF = $(foreach obj,$(OBJECTS),$(subst .o,.c.obj,$(obj)))
 EXEC = test

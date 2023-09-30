@@ -1,4 +1,7 @@
+#include <stdio.h>
+
 #include "testdata.h"
+#include "testVarArgs.h"
 
 static unsigned a = 4;
 
@@ -42,6 +45,9 @@ int main()
 		if( init_by_tydefFunc( cla ) )
 			return -7;
 	}
+
+	unsigned sum = var_sum( 4, 1, 2, 3, 4 );
+	printf( "Sum: %d\n", sum );
 
 	return 0;
 }

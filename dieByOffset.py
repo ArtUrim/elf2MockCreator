@@ -12,31 +12,30 @@ from elftools.dwarf.die import DIE
 from elftools.dwarf.compileunit import CompileUnit
 from mockProtos import *
 
-class DieByOffset(object):
-    """ Overall dictionary of DIE sorted by offset in CU. Main goal of the class is to
-        provide simple method of getting DIE by its offset in the CU.
+from typing import Dict, Optional, Tuple
+from elftools.dwarf.die import DIE
+from elftools.dwarf.compileunit import CompileUnit
 
-        There are two ways of receiving reference to DIE:
-           * globally (by static method), by providing offset (an integer) and reference 
-             to CU object (getDieInCu)
-           * locally, referenced by the wrapper object of the CU class (type DieByOffset).
-             This option need only one param, the offset itself (getDieInCu)
-
-        By default, offset as a parameter of the above is relatively to the cu_offset. The
-        option can be changed by the relOffset static method.
-
-        In both cases the CU must be registered before use (by contructing DieByOffset
-        object).
-
-        Public methods:
-            
-            contructor (arg: reference to CU object)
-
-            getDie, getDieInCu -- see desription above
-
-            relOffset -- static method to change serching offset style, globally. If true
-            offset is relatively to cu_offset, when False offset is global to whole ELF.
+class DieByOffset:
+    """Dictionary of DIE (Debug Information Entry) sorted by offset in Compilation Unit.
+    
+    This class provides methods to access DIEs by their offset within a compilation unit.
+    DIEs can be accessed either globally via static methods or locally via instance methods.
+    
+    Attributes:
+        CUs: Dict mapping CU offsets to tuples of (CompileUnit, Dict[int, DIE])
+        relativeOffset: Boolean flag indicating if offsets are relative to CU
     """
+
+    CUs: Dict[int, Tuple[CompileUnit, Dict[int, DIE]]] = {}
+    relativeOffset: bool = True
+
+    def __init__(self, cu: CompileUnit) -> None:
+        """Initialize DieByOffset with a compilation unit.
+        
+        Args:
+            cu: CompileUnit object to index DIEs from
+        """
 
     CUs = {}
 
@@ -50,43 +49,55 @@ class DieByOffset(object):
         if cu.cu_offset not in DieByOffset.CUs:
             DieByOffset.CUs[cu.cu_offset] = (cu,self._addCu(cu))
 
-    def _addCu(self,cu):
-        cuByOffset = {}
-        for dd in cu.iter_DIEs():
-            cuByOffset[dd.offset] = dd
-        return cuByOffset
-
-    def getDie(self,offset,rel=None):
-        """ offset:
-                offset of DIE. If rel is:
-                    True:  relative to cu_offset
-                    False: global
-                    None:  depends on static relativeOffset
+    def _addCu(self, cu: CompileUnit) -> Dict[int, DIE]:
+        """Index all DIEs in a compilation unit by their offset.
+        
+        Args:
+            cu: CompileUnit object to index DIEs from
+            
+        Returns:
+            Dictionary mapping DIE offsets to DIE objects
         """
-        return DieByOffset.getDieInCu(offset,self.cu,rel)
+        return {die.offset: die for die in cu.iter_DIEs()}
+
+    def getDie(self, offset: int, rel: Optional[bool] = None) -> Optional[DIE]:
+        """Get DIE by offset in current compilation unit.
+        
+        Args:
+            offset: Offset of DIE to retrieve
+            rel: If True, offset is relative to CU offset
+                 If False, offset is global
+                 If None, uses class relativeOffset setting
+        
+        Returns:
+            DIE object if found, None otherwise
+        """
+        return DieByOffset.getDieInCu(offset, self.cu, rel)
 
     def __getitem__(self,offset):
         self.getDie(offset)
 
     @staticmethod
-    def getDieInCu(offset,cu,rel=None):
-        """ offset:
-                offset of DIE. If rel is:
-                    True:  relative to cu_offset
-                    False: global
-                    None:  depends on static relativeOffset
-            cu:
-                reference to elftool/dwarf/CU object
+    def getDieInCu(offset: int, cu: CompileUnit, rel: Optional[bool] = None) -> Optional[DIE]:
+        """Get DIE by offset in specified compilation unit.
+        
+        Args:
+            offset: Offset of DIE to retrieve
+            cu: CompileUnit object to search in
+            rel: If True, offset is relative to CU offset
+                 If False, offset is global
+                 If None, uses class relativeOffset setting
+        
+        Returns:
+            DIE object if found, None otherwise
         """
-        if hasattr(cu,'cu_offset') and cu.cu_offset in DieByOffset.CUs: 
-            if None == rel:
-                rel = DieByOffset.relativeOffset
-            if True == rel:
-                offset += cu.cu_offset
-            if offset in DieByOffset.CUs[cu.cu_offset][1]:
-                return DieByOffset.CUs[cu.cu_offset][1][offset]
-
-        return None
+        if not hasattr(cu, 'cu_offset') or cu.cu_offset not in DieByOffset.CUs:
+            return None
+            
+        rel = DieByOffset.relativeOffset if rel is None else rel
+        search_offset = offset + cu.cu_offset if rel else offset
+        
+        return DieByOffset.CUs[cu.cu_offset][1].get(search_offset)
 
     @staticmethod
     def relOffset(ro):
